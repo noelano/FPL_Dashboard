@@ -5,7 +5,7 @@ from fpl_dashboard.api import load_all_data
 
 
 # Load summary datasets from the API
-teams, players, history, fixtures = load_all_data()
+teams, players, history, fixtures, max_stats = load_all_data()
 
 # set the palette
 pal = sns.color_palette('tab20').as_hex()

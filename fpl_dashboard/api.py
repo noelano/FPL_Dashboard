@@ -66,10 +66,13 @@ def load_all_data():
     # Add full name to the player data
     players['full_name'] = players['first_name'] + ' ' + players['second_name']
 
-    return teams, players, history, fixtures
+    # Get max values from the player dataset for use in comparisons
+    max_stats = players.max()
+
+    return teams, players, history, fixtures, max_stats
 
 
 if __name__ == "__main__":
 
-    teams, players, history, fixtures = load_all_data()
+    teams, players, history, fixtures, max_stats = load_all_data()
     len(history)

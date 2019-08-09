@@ -3,13 +3,14 @@ import dash_core_components as dcc
 import dash_html_components as html
 
 from fpl_dashboard.components import (
-    player_comparison
+    player_comparison, header
 )
 from fpl_dashboard.app import app
 
 
 # Define app layout
 app.layout = html.Div([
+    header.header(),
     dcc.Location(id='url', refresh=False),
     html.Div(id='page-content'),
 ], className='twelve columns')

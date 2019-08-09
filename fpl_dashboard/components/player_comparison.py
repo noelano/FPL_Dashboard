@@ -4,8 +4,16 @@ import dash_core_components as dcc
 import plotly.graph_objs as go
 
 from fpl_dashboard import S3_URL
-from fpl_dashboard.app import players, history, fixtures, app
+from fpl_dashboard.app import players, history, fixtures, max_stats, app
 
+
+# Assign labels to the main stats of interest
+COMMON_STATS = {
+    'total_points': 'Total Points',
+    'now_cost': 'Current Cost',
+    'bonus': 'Total Bonus Points',
+    'points_per_game': 'Points per Game',
+}
 
 player_list = players[['full_name', 'id']].rename(
     {'full_name': 'label', 'id': 'value'}, axis=1
@@ -62,17 +70,18 @@ def return_player_stats(player_id):
         # Add generic outputs
         img_url = S3_URL + 'p' + player['photo'].replace('jpg', 'png')
         div_contents.append(html.Img(src=img_url))
+        div_contents += common_stats(player)
 
         # Depending on the position, specific content will be added:
         position = player['element_type']
         if position == 1:
-            goalkeeper_view(player)
+            div_contents.append(goalkeeper_view(player))
         elif position == 2:
-            defender_view(player)
+            div_contents.append(defender_view(player))
         elif position == 3:
-            midfielder_view(player)
+            div_contents.append(midfielder_view(player))
         elif position == 4:
-            striker_view(player)
+            div_contents.append(striker_view(player))
 
         # Add next few fixtures
         # TODO
@@ -81,6 +90,50 @@ def return_player_stats(player_id):
         # TODO
 
     return div_contents
+
+
+def stat_row_helper(label, value, max_value):
+    return html.Div([
+        html.Div([
+            label
+        ], className='two columns'),
+
+        html.Div([
+            dcc.Graph(
+                figure={
+                    'data': [go.Bar(x=[value], y=[1], orientation='h')],
+                    'layout': {
+                        'xaxis': {
+                            'domain': [0, max_value],
+                            'showgrid': False,
+                            'zeroline': False,
+                            'showline': False,
+                            'ticks': '',
+                            'showticklabels': False,
+                        },
+                        'yaxis': {
+                            'showgrid': False,
+                            'zeroline': False,
+                            'showline': False,
+                            'ticks': '',
+                            'showticklabels': False,
+                        },
+                        'height': 80,
+                        'margin': {
+                            'l': 0,
+                            'r': 0,
+                            'b': 0,
+                            't': 0,
+                        },
+                    }
+                }
+            )
+        ], className='three columns', style={'height': 100}),
+    ], className='row')
+
+
+def common_stats(player_stats):
+    return [stat_row_helper(COMMON_STATS[stat], player_stats[stat], max_stats[stat]) for stat in COMMON_STATS]
 
 
 def defender_view(player_stats):
