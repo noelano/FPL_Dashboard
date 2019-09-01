@@ -23,35 +23,43 @@ layout = html.Div([
 
     html.Div([
 
-        dcc.Dropdown(
-            id='player_select_1',
-            options=player_list,
-            value=None,
-            clearable=True,
-            placeholder='Select a player'
+        html.Div([
+
+            dcc.Dropdown(
+                id='player_select_1',
+                options=player_list,
+                value=None,
+                clearable=True,
+                placeholder='Select a player'
+            ),
+
+            html.Div(id='player1')
+
+            ],
+            className='six columns'
         ),
 
-        html.Div(id='player1')
+        html.Div([
 
-        ],
-        className='six columns'
-    ),
+            dcc.Dropdown(
+                id='player_select_2',
+                options=player_list,
+                value=None,
+                clearable=True,
+                placeholder='Select a player'
+            ),
 
-    html.Div([
+            html.Div(id='player2')
 
-        dcc.Dropdown(
-            id='player_select_2',
-            options=player_list,
-            value=None,
-            clearable=True,
-            placeholder='Select a player'
+            ],
+            className='six columns'
         ),
 
-        html.Div(id='player2')
-
         ],
-        className='six columns'
+        className='row'
     ),
+
+    html.Div(id='comparison', className='row')
 
     ],
     className='twelve columns'
@@ -166,3 +174,42 @@ def update_player1(player_id):
 )
 def update_player2(player_id):
     return return_player_stats(player_id)
+
+
+@app.callback(
+    dash.dependencies.Output('comparison', 'children'),
+    [dash.dependencies.Input('player_select_1', 'value'),
+     dash.dependencies.Input('player_select_2', 'value')]
+)
+def update_comparison(player1_id, player2_id):
+    if player1_id and player2_id:
+        player1 = players[players['id'] == player1_id].iloc[0]
+        player2 = players[players['id'] == player2_id].iloc[0]
+
+        fig = go.Figure()
+
+        fig.add_trace(go.Scatterpolar(
+            r=player1[COMMON_STATS].values / max_stats[COMMON_STATS].values,
+            theta=list(COMMON_STATS.values()),
+            fill='toself',
+            name=player1['full_name'],
+            text=player1[COMMON_STATS].values
+        ))
+        fig.add_trace(go.Scatterpolar(
+            r=player2[COMMON_STATS].values / max_stats[COMMON_STATS].values,
+            theta=list(COMMON_STATS.values()),
+            fill='toself',
+            name=player2['full_name'],
+            text=player2[COMMON_STATS].values
+        ))
+
+        fig.update_layout(
+            polar=dict(
+                radialaxis=dict(
+                    visible=False,
+                    # range=[0, 5]
+                )),
+            showlegend=False
+        )
+
+        return dcc.Graph(figure=fig)

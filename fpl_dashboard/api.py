@@ -1,4 +1,5 @@
 import requests
+import pandas as pd
 
 from pandas.io.json import json_normalize
 
@@ -66,6 +67,9 @@ def load_all_data():
 
     # Add full name to the player data
     players['full_name'] = players['first_name'] + ' ' + players['second_name']
+
+    # Ensure points per game is a float
+    players['points_per_game'] = pd.to_numeric(players['points_per_game'])
 
     # Get max values from the player dataset for use in comparisons
     max_stats = players.max()
