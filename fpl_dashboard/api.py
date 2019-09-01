@@ -18,7 +18,7 @@ def fetch_bootstrap():
 
 
 def fetch_element(id):
-    element_data = requests.get(ELEMENT_URL + str(id))
+    element_data = requests.get(f"{ELEMENT_URL}{str(id)}/")
     element_data = element_data.json()
 
     return element_data
@@ -58,6 +58,7 @@ def obtain_player_history_fixtures(bootstrap_data):
 
 
 def load_all_data():
+    # TODO: Handle empty data
     bootstrap_data = fetch_bootstrap()
     players = json_normalize(bootstrap_data['elements'])
     teams = json_normalize(bootstrap_data['teams'])
